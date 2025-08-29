@@ -1,0 +1,1 @@
+*/5 * * * * root python /app/health_checker.py >> /app/logs/health.log 2>&1

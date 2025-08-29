@@ -1,0 +1,23 @@
+FROM python:3.12-slim
+
+# Install cron
+USER root
+RUN apt-get update && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app and crontab
+COPY health_checker.py .
+COPY crontab /etc/cron.d/health-cron
+
+# Set permissions and register crontab
+RUN chmod 0644 /etc/cron.d/health-cron && crontab /etc/cron.d/health-cron
+
+# Ensure logs directory exists
+RUN mkdir -p /app/logs
+RUN chmod -R 0777 /app/logs
+
+# Run cron in foreground
+CMD ["cron", "-f"]
